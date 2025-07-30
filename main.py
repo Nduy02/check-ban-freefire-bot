@@ -57,12 +57,13 @@ async def change_language(ctx, lang_code: str):
 @bot.command(name="ID")
 async def check_ban_command(ctx):
     import re, time
+
     content = ctx.message.content
     match = re.search(r'\b\d{5,20}\b', content)
     user_id = match.group(0) if match else None
 
     if not user_id:
-        await ctx.send("❌ Không tìm thấy UID hợp lệ. Vui lòng nhập dạng: `@ID 123456789`")
+        await ctx.send("❌ Không tìm thấy UID hợp lệ. Nhập đúng dạng: `@ID 123456789`")
         return
 
     start = time.perf_counter()
@@ -82,30 +83,33 @@ async def check_ban_command(ctx):
     region = ban_status.get("region", "N/A")
     period = ban_status.get("period", "N/A")
 
-    # Màu tím đẹp
-    embed_color = discord.Color.from_rgb(157, 78, 221)
-
-    embed = discord.Embed(
-        title="📌 Kiểm tra trạng thái tài khoản",
-        color=embed_color,
-        description=f"🆔 **ID:** `{user_id}`\n👤 **Tên:** `{nickname}`\n🌍 **Khu vực:** `{region}`"
-    )
-
-    embed.add_field(name="✅ Status", value="`success`", inline=True)
-    embed.add_field(
-        name="❗Thông báo",
-        value="`Tài khoản đã bị BAN.`" if is_banned else "`The user is not banned.`",
-        inline=True
-    )
-
     if is_banned:
         status_text = f"🔴 **Tài khoản này đã bị khóa!**\n📅 Thời gian ban: `{period}`"
         image_path = "assets/banned.gif"
+        thong_bao = "🔒 Banned"
     else:
-        status_text = "🟢 **Tài khoản của bạn hoàn toàn sạch và an toàn!**"
+        status_text = "🟢 **Tài khoản hoàn toàn sạch và an toàn!**"
         image_path = "assets/notbanned.gif"
+        thong_bao = "🔓 Not banned"
 
+    embed = discord.Embed(
+        title="📌 Kiểm tra trạng thái tài khoản",
+        color=discord.Color.from_rgb(157, 78, 221),  # Màu tím viền trái
+        description=f"🆔 **ID:** `{user_id}`"
+    )
+
+    # Hàng 1
+    embed.add_field(name="📋 Status", value="✅ success", inline=True)
+    embed.add_field(name="⚠️ Thông báo", value=thong_bao, inline=True)
+
+    # Hàng 2
+    embed.add_field(name="👤 Nickname", value=f"`{nickname}`", inline=True)
+    embed.add_field(name="🌍 Region", value=f"`{region}`", inline=True)
+
+    # Hàng 3
     embed.add_field(name="📛 Trạng thái ACC", value=status_text, inline=False)
+
+    # Ảnh
     embed.set_thumbnail(url="attachment://rank.gif")
 
     end = time.perf_counter()
