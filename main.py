@@ -85,11 +85,11 @@ async def check_ban_command(ctx):
 
     if is_banned:
         status_text = f"🔴 **Tài khoản này đã bị khóa!**\n📅 Thời gian ban: `{period}`"
-        image_path = "assets/banned.gif"
+        image_path = "assets/banned."
         thong_bao = "🔒 Banned"
     else:
         status_text = "🟢 **Tài khoản hoàn toàn sạch và an toàn!**"
-        image_path = "assets/notbanned.gif"
+        image_path = "assets/notbanned.png"
         thong_bao = "🔓 Not banned"
 
     embed = discord.Embed(
