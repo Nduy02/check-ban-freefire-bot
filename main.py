@@ -56,13 +56,16 @@ async def change_language(ctx, lang_code: str):
 
 @bot.command(name="ID")
 async def check_ban_command(ctx):
+    import re, time
     content = ctx.message.content
-    user_id = content[3:].strip()
+    match = re.search(r'\b\d{5,20}\b', content)
+    user_id = match.group(0) if match else None
 
-    if not user_id.isdigit():
-        await ctx.send(f"❌ `{user_id}` không hợp lệ. Vui lòng nhập UID hợp lệ!")
+    if not user_id:
+        await ctx.send("❌ Không tìm thấy UID hợp lệ. Vui lòng nhập dạng: `@ID 123456789`")
         return
 
+    start = time.perf_counter()
     async with ctx.typing():
         try:
             ban_status = await check_ban(user_id)
@@ -70,46 +73,49 @@ async def check_ban_command(ctx):
             await ctx.send(f"⚠️ Lỗi khi kiểm tra UID:\n```{str(e)}```")
             return
 
-        if ban_status is None:
-            await ctx.send("❌ Không lấy được thông tin. Vui lòng thử lại sau.")
-            return
+    if ban_status is None:
+        await ctx.send("❌ Không lấy được thông tin. Vui lòng thử lại sau.")
+        return
 
-        is_banned = int(ban_status.get("is_banned", 0))
-        nickname = ban_status.get("nickname", "N/A")
-        region = ban_status.get("region", "N/A")
-        period = ban_status.get("period", "N/A")
+    is_banned = int(ban_status.get("is_banned", 0))
+    nickname = ban_status.get("nickname", "N/A")
+    region = ban_status.get("region", "N/A")
+    period = ban_status.get("period", "N/A")
 
-        embed = discord.Embed(
-            title="📌 Kiểm tra trạng thái tài khoản",
-            color=discord.Color.red() if is_banned else discord.Color.green()
-        )
-        embed.add_field(name="🆔 ID:", value=f"`{user_id}`", inline=False)
+    # Màu tím đẹp
+    embed_color = discord.Color.from_rgb(157, 78, 221)
 
-        embed.add_field(name="✅ Status", value="`success`", inline=True)
-        embed.add_field(
-            name="❗Thông báo",
-            value="`Tài khoản đã bị BAN.`" if is_banned else "`The user is not banned.`",
-            inline=True
-        )
+    embed = discord.Embed(
+        title="📌 Kiểm tra trạng thái tài khoản",
+        color=embed_color,
+        description=f"🆔 **ID:** `{user_id}`\n👤 **Tên:** `{nickname}`\n🌍 **Khu vực:** `{region}`"
+    )
 
-        if is_banned:
-            status_text = f"🔴 **Tài khoản này đã bị khóa vĩnh viễn hoặc tạm thời!**\n📅 Thời gian ban: `{period}`"
-            image_path = "assets/banned."
-        else:
-            status_text = "🟢 **Tài khoản của bạn hoàn toàn sạch và an toàn!**"
-            image_path = "assets/notbanned.png"
+    embed.add_field(name="✅ Status", value="`success`", inline=True)
+    embed.add_field(
+        name="❗Thông báo",
+        value="`Tài khoản đã bị BAN.`" if is_banned else "`The user is not banned.`",
+        inline=True
+    )
 
-        embed.add_field(name="📛 Trạng thái ACC", value=status_text, inline=False)
-        embed.set_thumbnail(url="attachment://rank.png")  # Anh thay ảnh rank tương ứng
-        embed.set_footer(
-            text="📌 Dịch vụ kiểm tra tài khoản Free Fire • AURORAVN",
-            icon_url=ctx.guild.icon.url if ctx.guild.icon else None
-        )
-        embed.timestamp = ctx.message.created_at
+    if is_banned:
+        status_text = f"🔴 **Tài khoản này đã bị khóa!**\n📅 Thời gian ban: `{period}`"
+        image_path = "assets/banned.gif"
+    else:
+        status_text = "🟢 **Tài khoản của bạn hoàn toàn sạch và an toàn!**"
+        image_path = "assets/notbanned.gif"
 
-        # Gửi file rank nếu có
-        file = discord.File(image_path, filename="rank.png")
-        await ctx.send(embed=embed, file=file)
+    embed.add_field(name="📛 Trạng thái ACC", value=status_text, inline=False)
+    embed.set_thumbnail(url="attachment://rank.gif")
+
+    end = time.perf_counter()
+    embed.set_footer(
+        text=f"📌 Dịch vụ kiểm tra tài khoản Free Fire • AURORAVN • {ctx.message.created_at.strftime('%H:%M %d/%m/%y')} • Xử lý {end - start:.2f}s",
+        icon_url=ctx.guild.icon.url if ctx.guild.icon else None
+    )
+
+    file = discord.File(image_path, filename="rank.gif")
+    await ctx.send(embed=embed, file=file)
 
 
 bot.run(TOKEN)
