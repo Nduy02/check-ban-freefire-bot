@@ -114,7 +114,7 @@ async def check_ban_command(ctx):
 
     end = time.perf_counter()
     embed.set_footer(
-        text=f"📌 Dịch vụ kiểm tra tài khoản Free Fire • AURORAVN • {ctx.message.created_at.strftime('%H:%M %d/%m/%y')} • Xử lý {end - start:.2f}s",
+        text=f"   Free Fire • PAINVN • {ctx.message.created_at.strftime('%H:%M %d/%m/%y')} • Xử lý {end - start:.2f}s",
         icon_url=ctx.guild.icon.url if ctx.guild.icon else None
     )
 
