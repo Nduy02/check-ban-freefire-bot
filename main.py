@@ -94,10 +94,10 @@ async def check_ban_command(ctx):
 
         if is_banned:
             status_text = f"🔴 **Tài khoản này đã bị khóa vĩnh viễn hoặc tạm thời!**\n📅 Thời gian ban: `{period}`"
-            image_path = "assets/banned.gif"
+            image_path = "assets/banned."
         else:
             status_text = "🟢 **Tài khoản của bạn hoàn toàn sạch và an toàn!**"
-            image_path = "assets/notbanned.gif"
+            image_path = "assets/notbanned.png"
 
         embed.add_field(name="📛 Trạng thái ACC", value=status_text, inline=False)
         embed.set_thumbnail(url="attachment://rank.png")  # Anh thay ảnh rank tương ứng
